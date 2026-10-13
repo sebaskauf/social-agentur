@@ -77,5 +77,24 @@ class TestApify(unittest.TestCase):
         self.assertIn("noch nicht eingerichtet", err)
 
 
+    def test_kaputte_schluessel_datei_ohne_traceback_und_ohne_inhalt(self):
+        ordner = temp_home(mit_tokens=False)
+        faelle = [b"\x89PNG\r\n\x1a\n\xe3\x81 kein text",                      # Bild in der Zwischenablage
+                  (GEHEIM_APIFY + "\nnoch etwas anderes kopiert").encode("utf-8"),  # Schlüssel plus Fremdtext
+                  b"kurz"]
+        for inhalt in faelle:
+            G._GEHEIMNISSE.clear()
+            (ordner / "apify_token").write_bytes(inhalt)
+            def http(*a, **k):
+                raise AssertionError("darf mit kaputtem Schlüssel keine Anfrage senden")
+            with mock.patch.object(G, "http", http):
+                code, out, err = ausfuehren(apify.main, ["check"])
+            self.assertEqual(code, 2)
+            self.assertIn("keinen gültigen Zugangsschlüssel", err)
+            self.assertNotIn("Traceback", out + err)
+            self.assertNotIn(GEHEIM_APIFY, out + err)
+            self.assertNotIn("anderes kopiert", out + err)
+
+
 if __name__ == "__main__":
     unittest.main()

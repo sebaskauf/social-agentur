@@ -39,9 +39,17 @@ def lies_token(dateiname):
     pfad = daten_ordner() / dateiname
     if not pfad.is_file():
         return None
-    wert = pfad.read_text(encoding="utf-8").strip()
+    kaputt = ("Die Datei {} enthält keinen gültigen Zugangsschlüssel (falsches Format, mehrere Zeilen oder Leerzeichen). "
+              "Kopier den Schlüssel neu und speichere ihn mit dem sicheren Befehl aus der README. Den Inhalt der Datei zeige ich aus Sicherheitsgründen nicht an.").format(pfad)
+    try:
+        wert = pfad.read_bytes().decode("utf-8").strip()
+    except UnicodeDecodeError:
+        fehler_ende(kaputt)
     if not wert:
         return None
+    if len(wert) < 10 or len(wert) > 1000 or any(z.isspace() for z in wert):
+        # Nie den Inhalt ausgeben: Steckt darin ein echter Schlüssel plus Fremdtext, wäre er sonst im Chat.
+        fehler_ende(kaputt)
     if wert not in _GEHEIMNISSE:
         _GEHEIMNISSE.append(wert)
     return wert
@@ -87,7 +95,9 @@ def http(methode, url, daten=None, header=None, timeout=60, roh=False):
             detail = ""
         raise ApiFehler("HTTP {}: {}".format(fehler.code, detail[:500]), code=fehler.code)
     except urllib.error.URLError as fehler:
-        raise ApiFehler("Keine Verbindung: {}".format(fehler.reason))
+        raise ApiFehler("Keine Verbindung: {}".format(maske(str(fehler.reason))))
+    except (ValueError, OSError) as fehler:
+        raise ApiFehler("Anfrage fehlgeschlagen: {}".format(maske(str(fehler))[:300]))
     if roh:
         return inhalt
     if not inhalt:
