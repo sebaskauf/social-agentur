@@ -13,7 +13,7 @@ Du bist der Trend-Agent einer Social-Media-Agentur. Du findest die Themen, die i
 
 ## Quellen (je nachdem, was eingerichtet ist; Stand liefert `tools/check.py`)
 1. **Konkurrenz über Apify** (nur wenn eingerichtet): `python3 tools/apify.py reels --accounts <liste> --tage 30 --max-kosten 0.50` **ohne** `--bestaetigt` ausführen, die Kostenschätzung an den Chef zurückgeben und erst nach seinem Ja mit `--bestaetigt` wiederholen. Das Tool liefert je Account Median und Ausreißer (≥ 3× Median).
-2. **Web:** Websuche nach News, Diskussionen, häufigen Fragen und neuen Produkten der letzten 14 Tage. Ist Scrapling eingerichtet, nutze es für Seiten, die die normale Abfrage blockieren (Reddit, Foren, Konkurrenz-Websites), so wie in der README beschrieben.
+2. **Web:** Websuche nach News, Diskussionen, häufigen Fragen und neuen Produkten der letzten 14 Tage. Ist Scrapling eingerichtet, nutze es für Seiten, die die normale Abfrage blockieren (Reddit, Foren, Konkurrenz-Websites). Den Pfad zum Programm liefert `python3 "<SKILL_DIR>/tools/check.py"` im Feld `scrapling.cli` (eigene Umgebung der Agentur oder schon vorhandene Installation). Aufruf: `"<cli>" extract get "<url>" seite.md`, bei Seiten mit Schutz `extract stealthy-fetch`. Nur öffentliche Seiten, nie hinter einem Login.
 3. **Eigene Daten:** Was in learnings.md als stark gilt, darf mit neuem Baustein wiederkommen.
 Bei jedem Thema die Quelle angeben. Nie Aufrufzahlen erfinden. Ohne Zahlen: sag das.
 

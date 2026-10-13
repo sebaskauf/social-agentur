@@ -89,7 +89,7 @@ py -3 -m venv "$HOME\.social-agentur\venv"
 ~/.social-agentur/venv/bin/scrapling extract get "https://example.com" /tmp/scrapling-test.md && head -5 /tmp/scrapling-test.md
 ```
 
-**So nutzt der Trend-Agent es:** `~/.social-agentur/venv/bin/scrapling extract get "<url>" seite.md` für normale Seiten, `extract stealthy-fetch "<url>" seite.md` für Seiten mit Schutz. Nur öffentliche Seiten, nie hinter einem Login.
+**So nutzt der Trend-Agent es:** `scrapling extract get "<url>" seite.md` für normale Seiten, `extract stealthy-fetch "<url>" seite.md` für Seiten mit Schutz. Den Pfad findet `check.py` selbst: zuerst die eigene Umgebung oben, sonst eine schon vorhandene Scrapling-Installation. Nur öffentliche Seiten, nie hinter einem Login.
 
 ## 5. Apify (optional, für Konkurrenz-Daten)
 
