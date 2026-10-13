@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from _laden import GEHEIM_APIFY, GEHEIM_IG, PROFIL, ausfuehren, temp_home
@@ -52,6 +53,17 @@ class TestCheck(unittest.TestCase):
         s = check.pruefe_scrapling()
         self.assertTrue(s["ok"])
         self.assertEqual(s["cli"], str(cli))
+
+
+class TestScraplingPfad(unittest.TestCase):
+    def test_nur_venv_ignoriert_andere_installation(self):
+        temp_home()
+        with mock.patch.dict("os.environ", {"SOCIAL_AGENTUR_NUR_VENV": "1"}), \
+                mock.patch("shutil.which", return_value="/usr/local/bin/scrapling"):
+            self.assertIsNone(check.scrapling_pfad())
+        with mock.patch.dict("os.environ", {"SOCIAL_AGENTUR_NUR_VENV": ""}), \
+                mock.patch("shutil.which", return_value="/usr/local/bin/scrapling"):
+            self.assertEqual(check.scrapling_pfad(), "/usr/local/bin/scrapling")
 
 
 if __name__ == "__main__":

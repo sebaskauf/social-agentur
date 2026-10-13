@@ -49,8 +49,9 @@ def scrapling_pfad():
     for k in kandidaten:
         if k.is_file():
             return str(k)
-    gefunden = shutil.which("scrapling")
-    return gefunden
+    if os.environ.get("SOCIAL_AGENTUR_NUR_VENV") == "1":
+        return None  # für Tests: so tun, als gäbe es keine andere Scrapling-Installation
+    return shutil.which("scrapling")
 
 
 def pruefe_scrapling():
