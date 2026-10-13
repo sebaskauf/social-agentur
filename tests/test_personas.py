@@ -61,5 +61,14 @@ class TestPersonas(unittest.TestCase):
         self.assertIn("zielgruppe", err)
 
 
+    def test_ziel_ist_datei_deutsche_meldung(self):
+        datei = self.ordner / "keinordner.txt"
+        datei.write_text("x", encoding="utf-8")
+        code, out, err = ausfuehren(personas.main, ["ziehen", "--profil", str(self.profil), "--seed", "1", "--ziel", str(datei)])
+        self.assertEqual(code, 2)
+        self.assertIn("muss ein Ordner sein", err)
+        self.assertNotIn("Traceback", err + out)
+
+
 if __name__ == "__main__":
     unittest.main()

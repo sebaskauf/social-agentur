@@ -120,8 +120,13 @@ def main(argv=None):
         zg = lies_zielgruppe(a.profil)
     except ProfilFehler as fehler:
         G.fehler_ende(str(fehler))
+    if Path(a.ziel).exists() and not Path(a.ziel).is_dir():
+        G.fehler_ende("--ziel muss ein Ordner sein, {} ist eine Datei.".format(a.ziel))
     personas = ziehe_personas(zg, anzahl, a.seed)
-    dateien = schreibe(personas, a.ziel)
+    try:
+        dateien = schreibe(personas, a.ziel)
+    except OSError as fehler:
+        G.fehler_ende("Personas konnten nicht nach {} geschrieben werden: {}".format(a.ziel, fehler.strerror or fehler))
     print(json.dumps({"personas": len(personas), "seed": a.seed, "dateien": dateien}, ensure_ascii=False, indent=2))
     return 0
 
