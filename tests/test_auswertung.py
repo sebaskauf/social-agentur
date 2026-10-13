@@ -35,6 +35,31 @@ class TestAuswertung(unittest.TestCase):
         self.assertEqual(e["geteilt_an"], ["meiner Schwester"])
         self.assertTrue((self.ordner / "ergebnis.md").read_text(encoding="utf-8").startswith("# Ergebnis Follower-Test"))
 
+    def test_null_bei_leeren_feldern_ist_gueltig(self):
+        a = urteil("p001", ende=True, kat="stark"); a["absprung_stelle"] = None; a["geteilt_an"] = None
+        b = urteil("p002", stelle="Absatz 2"); del b["geteilt_an"]
+        self.schreibe(1, [a, b])
+        code, _, _ = ausfuehren(auswertung.main, ["--ordner", str(self.ordner)])
+        self.assertEqual(code, 0)
+        e = json.loads((self.ordner / "ergebnis.json").read_text(encoding="utf-8"))
+        self.assertEqual(e["anzahl_urteile"], 2)
+        self.assertEqual(e["fehler"], [])
+
+    def test_absprung_stellen_zusammengefasst(self):
+        self.assertEqual(auswertung.stelle("nach Hook (0:04)"), "0:04")
+        self.assertEqual(auswertung.stelle("bei Stoppuhr (0:10)"), "0:10")
+        self.assertEqual(auswertung.stelle("Absatz 2 (nach 20 Minuten-Nennung)"), "Absatz 2")
+        self.assertEqual(auswertung.stelle("slide 3"), "Folie 3")
+        self.assertEqual(auswertung.stelle("Hook/Intro"), "Hook")
+        self.assertEqual(auswertung.stelle(""), "–")
+        self.assertEqual(auswertung.stelle("Nach dem Rezept"), "Nach dem Rezept")
+        liste = [urteil("p001", stelle="0:10"), urteil("p002", stelle="bei Stoppuhr (0:10)"), urteil("p003", stelle="Absatz 1")]
+        self.schreibe(1, liste)
+        ausfuehren(auswertung.main, ["--ordner", str(self.ordner)])
+        e = json.loads((self.ordner / "ergebnis.json").read_text(encoding="utf-8"))
+        self.assertEqual(e["absprung_stellen"], {"0:10": 2, "Absatz 1": 1})
+        self.assertEqual(e["haeufigste_absprung_stelle"], "0:10")
+
     def test_kaputter_eintrag_wird_gemeldet_nicht_abgebrochen(self):
         self.schreibe(1, [urteil("p001"), {"persona_id": "p002", "stehen_geblieben": "ja"}])
         (self.ordner / "urteile_02.json").write_text("{kein json", encoding="utf-8")

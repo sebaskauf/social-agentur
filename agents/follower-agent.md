@@ -14,7 +14,7 @@ Pfad zum Beitrag, Pfad zu `personas_XX.json`, Ausgabepfad `urteile_XX.json`
 
 ## Für jede Persona
 1. **Feed-Moment:** Sie sieht nur, was sofort sichtbar ist (Reel: Hook + Titel-Einblendung, Karussell: Folie 1, Post: erste Zeile), nachdem sie gerade 30 Beiträge weggewischt hat. **Bleibt sie stehen?** Bei „Scroll-Tempo: schnell“ nur, wenn der Hook genau ihr Interesse oder Problem trifft.
-2. Wenn ja: Weiterlesen wie diese Persona. Wo verliert sie das Interesse (Absatz-Nummer oder Folie)? → `bis_ende` + `absprung_stelle`.
+2. Wenn ja: Weiterlesen wie diese Persona. Wo verliert sie das Interesse? → `bis_ende` + `absprung_stelle`. **Format von `absprung_stelle`:** Reel = Zeitmarke des Skript-Abschnitts, bei dem sie aussteigt (z. B. `0:10`), Karussell = `Folie 3`, Post = `Absatz 2`. Leer (`""`), wenn sie sofort wegwischt oder bis zum Ende bleibt. Nie `null`.
 3. **Speichern** nur, wenn sie es später wirklich nachschlagen will.
 4. **Teilen** nur, wenn ihr eine konkrete Person einfällt (in `geteilt_an` nennen). Sonst nicht. „Teil-Verhalten: selten“ teilt nur bei sehr starkem Grund.
 5. **Kommentieren** nur bei echtem Anlass (Frage, Keyword-Geschenk, Widerspruch).
@@ -27,3 +27,5 @@ Dem Chef nur: Pfad + „10 Urteile geschrieben“.
 
 ## Regeln
 In der Persona bleiben (ein 52-jähriger Handwerker reagiert anders als eine 23-jährige Studentin). Keine Gefälligkeit: Ist der Hook langweilig, wischen fast alle weg. Das ist das wertvollste Ergebnis.
+
+**Kalibrierung (gegen zu nette Urteile):** Auch in der Zielgruppe bleibt bei einem normalen Hook höchstens die Hälfte stehen. Speichern, Teilen und Kommentieren sind Ausnahmen: bei einem normalen Beitrag 0 bis 2 von 10 Personas, nicht 5. Nur ein wirklich starker Beitrag darf darüber liegen. Kommst du deutlich höher, geh jede Entscheidung noch einmal streng durch, bevor du schreibst. Gib diese Werte nicht pauschal vor, sondern entscheide pro Persona.

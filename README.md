@@ -93,7 +93,7 @@ py -3 -m venv "$HOME\.social-agentur\venv"
 
 ## 5. Apify (optional, für Konkurrenz-Daten)
 
-Apify lädt die Reels deiner Konkurrenz mit Aufrufzahlen. Daraus erkennt der Trend-Agent Ausreißer, also Reels mit mindestens dem Dreifachen des üblichen Werts. Apify hat jeden Monat ein Gratis-Guthaben. Die Agentur nennt vor jedem Lauf die geschätzten Kosten, setzt eine harte Obergrenze und startet erst nach deinem Ja.
+Apify lädt die Reels deiner Konkurrenz mit Aufrufzahlen. Daraus erkennt der Trend-Agent Ausreißer, also Reels mit mindestens dem Dreifachen des üblichen Werts. Apify hat jeden Monat ein Gratis-Guthaben (im Free-Plan aktuell 5 $). Die Agentur nennt vor jedem Lauf die geschätzten Kosten, setzt eine harte Obergrenze und startet erst nach deinem Ja.
 
 1. Auf [apify.com](https://apify.com) oben rechts auf **Sign up**, am schnellsten mit Google.
 2. In der Apify Console die Einstellungen öffnen, Bereich **API & Integrations**.
@@ -111,13 +111,13 @@ Apify lädt die Reels deiner Konkurrenz mit Aufrufzahlen. Daraus erkennt der Tre
 
 Danach liest die Agentur echte Zahlen, Kommentare und Nachrichten deines Accounts. Posten und Antworten passieren nur nach deinem ausdrücklichen Ja. Es ist die offizielle Instagram-API von Meta (Instagram-Login), ohne Passwort-Weitergabe.
 
-1. Dein Account muss öffentlich und ein **Professional-Account** sein (Creator oder Business). Falls nicht: Instagram → Einstellungen → **Kontotyp und Tools** → **Zu professionellem Konto wechseln** (kostenlos).
-2. [developers.facebook.com](https://developers.facebook.com) öffnen → **Log in** mit Facebook → **Get started** → registrieren (Telefonnummer und E-Mail bestätigen, Rolle zum Beispiel Developer).
-3. **Create app** → Namen eingeben → Anwendungsfall **Other** (oder direkt **Instagram API**, falls angeboten) → App-Typ **Business** → **Create app**.
-4. Beim Produkt **Instagram** auf **Set up**.
-5. **App roles** → **Roles** → **Add people** → **Instagram Tester** → eigenen Instagram-Namen → **Add**.
-6. In Instagram: **Mehr (☰)** → **Einstellungen** → **Website-Berechtigungen** → **Apps und Websites** → **Tester-Einladungen** → annehmen. (Nicht sichtbar? Instagram im Browser öffnen.)
-7. Zurück im Dashboard: **Instagram** → **API setup with Instagram login** → **Generate access tokens** → **Generate token** → einloggen → alle Berechtigungen erlauben → **I understand** → Token kopieren. Nicht in einen Chat einfügen.
+1. Dein Account muss öffentlich und ein **Professional-Account** sein (Creator oder Business). Falls nicht: In Instagram unter Einstellungen **Zu professionellem Konto wechseln** (meist unter **Kontotyp und Tools**, kostenlos).
+2. [developers.facebook.com](https://developers.facebook.com) öffnen → **Log in** mit Facebook → **Get started** → registrieren (Telefonnummer und E-Mail bestätigen).
+3. **Create app** → App-Namen und E-Mail eingeben → Anwendungsfall **Manage messaging & content on Instagram** (im älteren Dashboard: **Other**, dann App-Typ **Business**) → **Create app**.
+4. Instagram-Einrichtung öffnen: im neuen Dashboard beim Anwendungsfall auf **Customize** → **API setup with Instagram login**. Im älteren Dashboard beim Produkt **Instagram** auf **Set up**.
+5. Im Bereich **Generate access tokens** auf **Add account** → mit deinem Instagram-Account einloggen → Berechtigungen erlauben.
+6. Nur falls Meta eine Einladung verlangt (dein Account erscheint nicht oder als ausstehend): **App roles** → **Roles** → **Add people** → **Instagram Tester** → deinen Instagram-Namen. Dann in Instagram: Einstellungen → **Website-Berechtigungen** → **Apps und Websites** → **Tester-Einladungen** → annehmen (nicht sichtbar? instagram.com im Browser öffnen). Sonst überspringen.
+7. Neben deinem Account auf **Generate token** → einloggen → Token kopieren. Nicht in einen Chat einfügen.
 8. Sicher speichern, direkt aus der Zwischenablage:
 
    **Mac:** `mkdir -p ~/.social-agentur && pbpaste > ~/.social-agentur/instagram_token && chmod 600 ~/.social-agentur/instagram_token && date +%F > ~/.social-agentur/instagram_token_datum`
@@ -127,7 +127,7 @@ Danach liest die Agentur echte Zahlen, Kommentare und Nachrichten deines Account
    **Linux:** wie Mac, mit `xclip -o -selection clipboard` statt `pbpaste`.
 9. Prüfen: `python3 ~/.claude/skills/agentur/tools/instagram.py status` zeigt Account, Kontotyp und Follower.
 
-Der Schlüssel läuft nach **60 Tagen** ab. `/agentur woche` erinnert dich ab Tag 50, `/agentur instagram erneuern` verlängert ihn.
+Der Schlüssel läuft nach **60 Tagen** ab. `/agentur woche` erinnert dich ab Tag 50, `/agentur instagram erneuern` verlängert ihn (frühestens 24 Stunden nach dem Erstellen). Ist er einmal abgelaufen, erzeugst du in Schritt 7 einen neuen.
 
 **Reels posten:** Die Instagram-API mit Instagram-Login nimmt Videos nur über eine öffentlich erreichbare Adresse an (`instagram.py posten-reel --url …`). Direkt vom Rechner hochladen geht damit nicht (getestet am 13.10.2026). Dann postest du das fertige Reel in der Instagram-App, die Agentur liefert Skript, Hook und Caption. Bilder und Karussells brauchen ebenfalls eine öffentliche Bild-URL.
 
@@ -155,7 +155,7 @@ Deine Daten liegen im Ordner `meine-agentur/` des Projekts, in dem du Claude Cod
 - Es postet, antwortet und schreibt nie ohne dein ausdrückliches Ja.
 - Es nutzt keine inoffiziellen Logins und kein Scraping mit Passwort.
 - Nachrichten kann die Instagram-API nur beantworten, wenn dir die Person in den letzten 24 Stunden geschrieben hat. Über die API gehen höchstens 100 Beiträge pro 24 Stunden.
-- Die Meta-App bleibt im Entwicklungsmodus und funktioniert nur für deinen eigenen Account (als Tester eingetragen).
+- Die Meta-App bleibt im Entwicklungsmodus (Standard Access) und funktioniert nur für Accounts, die du selbst in der App eingetragen hast. Für deinen eigenen Account brauchst du keine App-Prüfung durch Meta.
 
 ## 9. Sicherheit
 

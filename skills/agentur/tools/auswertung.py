@@ -7,6 +7,7 @@ Schreibt ergebnis.json und ergebnis.md in den Ordner. Kaputte Einträge werden g
 """
 import argparse
 import json
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -18,6 +19,8 @@ KATEGORIEN = {"hook_trifft_nicht", "zu_lang", "unklar", "kenne_ich_schon", "nich
               "wirkt_wie_werbung", "unglaubwuerdig", "stark"}
 BOOL_FELDER = ("stehen_geblieben", "bis_ende", "gespeichert", "geteilt", "kommentiert")
 TEXT_FELDER = ("persona_id", "absprung_stelle", "geteilt_an", "kategorie", "grund", "zitat")
+# Diese Felder sind oft zu Recht leer (bis zum Ende geschaut, nicht geteilt). null oder fehlend zählt dann als "".
+DARF_LEER = ("absprung_stelle", "geteilt_an", "grund", "zitat")
 QUOTEN = [("wegwisch", "Wegwisch-Quote"), ("ende", "Ende-Quote (von den Stehengebliebenen)"),
           ("speichern", "Speicher-Quote"), ("teilen", "Teil-Quote"), ("kommentieren", "Kommentar-Quote")]
 
@@ -26,6 +29,9 @@ def pruefe_eintrag(eintrag):
     """Gibt eine Liste von Problemen zurück, leer = gültig."""
     if not isinstance(eintrag, dict):
         return ["kein Objekt"]
+    for feld in DARF_LEER:
+        if eintrag.get(feld) is None:
+            eintrag[feld] = ""
     probleme = []
     for feld in BOOL_FELDER:
         if not isinstance(eintrag.get(feld), bool):
@@ -36,6 +42,23 @@ def pruefe_eintrag(eintrag):
     if isinstance(eintrag.get("kategorie"), str) and eintrag["kategorie"] not in KATEGORIEN:
         probleme.append("unbekannte kategorie \"{}\"".format(eintrag["kategorie"]))
     return probleme
+
+
+def stelle(text):
+    """Fasst Schreibweisen zusammen: „nach Hook (0:04)“ → „0:04“, „Absatz 2 (nach …)“ → „Absatz 2“, „Hook/Intro“ → „Hook“."""
+    t = (text or "").strip()
+    if not t:
+        return "–"
+    zeit = re.search(r"\b(\d{1,2}:\d{2})\b", t)
+    if zeit:
+        return zeit.group(1)
+    teil = re.search(r"\b(folie|slide|absatz|zeile)\s*(\d+)", t, re.I)
+    if teil:
+        name = teil.group(1).lower()
+        return "{} {}".format("Folie" if name in ("folie", "slide") else name.capitalize(), teil.group(2))
+    if re.search(r"\bhook\b", t, re.I):
+        return "Hook"
+    return t
 
 
 def lies_urteile(ordner):
@@ -80,7 +103,7 @@ def berechne(urteile):
         "teilen": round(sum(u["geteilt"] for u in urteile) / n, 4) if n else 0.0,
         "kommentieren": round(sum(u["kommentiert"] for u in urteile) / n, 4) if n else 0.0,
     }
-    absprung = Counter(u["absprung_stelle"].strip() or "–" for u in urteile if u["stehen_geblieben"] and not u["bis_ende"])
+    absprung = Counter(stelle(u["absprung_stelle"]) for u in urteile if u["stehen_geblieben"] and not u["bis_ende"])
     kategorien = Counter(u["kategorie"] for u in urteile)
     gruende = []
     for kat, anzahl in Counter(u["kategorie"] for u in urteile if u["kategorie"] != "stark").most_common(3):

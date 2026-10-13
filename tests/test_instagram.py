@@ -27,7 +27,7 @@ class TestInstagram(unittest.TestCase):
 
     def test_url_bau(self):
         u = instagram.url("/me", fields="username")
-        self.assertTrue(u.startswith("https://graph.instagram.com/v24.0/me?"))
+        self.assertTrue(u.startswith("https://graph.instagram.com/" + instagram.API_VERSION + "/me?"))
         self.assertIn("fields=username", u)
         self.assertIn("access_token=", u)
         self.assertNotIn(GEHEIM_IG, G.maske(u))
@@ -110,6 +110,13 @@ class TestInstagram(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("60 Tage", out)
         self.assertEqual((G.daten_ordner() / "instagram_token").read_text().strip(), "NEU123")
+
+
+class TestAbsender(unittest.TestCase):
+    def test_username_from_oder_unbekannt(self):
+        self.assertEqual(instagram.absender({"username": "anna"}), "anna")
+        self.assertEqual(instagram.absender({"from": {"id": "1", "username": "ben"}}), "ben")
+        self.assertEqual(instagram.absender({"text": "Abo"}), "unbekannt")
 
 
 if __name__ == "__main__":

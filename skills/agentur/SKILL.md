@@ -52,13 +52,13 @@ Fehlt `meine-agentur/profil.md`, starte bei jedem Inhalts-Befehl zuerst `/agentu
       4. Gib den sicheren Befehl aus der README (Mac: `pbpaste`, Windows: `Get-Clipboard`), der den Schlüssel nach `~/.social-agentur/apify_token` schreibt. Der Kunde führt ihn im Terminal aus, oder du führst ihn aus, nachdem der Kunde kopiert hat.
       5. `python3 tools/apify.py check` → zeig Konto-Name und verbleibendes Monatsguthaben.
    **c) Instagram (nur Full Setup, der Kunde macht es, du führst):** Erklär in zwei Sätzen, was danach geht (echte Zahlen, Kommentare, Posten und Antworten nur nach Ja). Dann **immer nur ein Schritt pro Nachricht**, warte jeweils auf „fertig“. Bei Abweichungen in der Oberfläche: bitte um eine Beschreibung oder einen Screenshot und hilf anhand dessen.
-      1. Account öffentlich und Professional (Creator oder Business)? Falls nicht: Instagram → Einstellungen → Kontotyp und Tools → Zu professionellem Konto wechseln (kostenlos).
-      2. developers.facebook.com öffnen → Log in mit Facebook → Get started → registrieren (Telefonnummer und E-Mail bestätigen, Rolle z. B. Developer).
-      3. Create app → Namen eingeben → Anwendungsfall „Other“ (oder direkt „Instagram API“, falls angeboten) → App-Typ Business → Create app.
-      4. Beim Produkt Instagram auf Set up.
-      5. App roles → Roles → Add people → Instagram Tester → eigenen Instagram-Namen → Add.
-      6. In Instagram: Mehr (☰) → Einstellungen → Website-Berechtigungen → Apps und Websites → Tester-Einladungen → annehmen.
-      7. Zurück im Dashboard: Instagram → API setup with Instagram login → Generate access tokens → Generate token → einloggen → alle Berechtigungen erlauben → I understand → Token kopieren. **Nicht in den Chat.**
+      1. Account öffentlich und Professional (Creator oder Business)? Falls nicht: In Instagram unter Einstellungen „Zu professionellem Konto wechseln“ (meist unter „Kontotyp und Tools“, kostenlos).
+      2. developers.facebook.com öffnen → „Log in“ mit Facebook → „Get started“ → registrieren (Telefonnummer und E-Mail bestätigen).
+      3. „Create app“ → App-Namen und E-Mail eingeben → Anwendungsfall „Manage messaging & content on Instagram“ (im älteren Dashboard: „Other“, dann App-Typ „Business“) → „Create app“.
+      4. Instagram-Einrichtung öffnen: im neuen Dashboard beim Anwendungsfall auf „Customize“ → „API setup with Instagram login“. Im älteren Dashboard beim Produkt „Instagram“ auf „Set up“.
+      5. Im Bereich „Generate access tokens“ auf „Add account“ → mit dem eigenen Instagram-Account einloggen → Berechtigungen erlauben.
+      6. Nur falls Meta eine Einladung verlangt (Account erscheint nicht oder als „ausstehend“): „App roles“ → „Roles“ → „Add people“ → „Instagram Tester“ → eigenen Instagram-Namen. Dann in Instagram: Einstellungen → „Website-Berechtigungen“ → „Apps und Websites“ → „Tester-Einladungen“ → annehmen (im Browser auf instagram.com, falls die App es nicht zeigt). Sonst diesen Schritt überspringen.
+      7. Neben dem Account auf „Generate token“ → einloggen → Token kopieren. **Nicht in den Chat.**
       8. Sicherer Befehl aus der README schreibt den Token nach `~/.social-agentur/instagram_token` und das Datum nach `instagram_token_datum`.
       9. `python3 tools/instagram.py status` → zeig Account-Name, Kontotyp, Follower.
    **d) Profil (immer):** `/agentur start`.

@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _gemeinsam as G  # noqa: E402
 
-API_VERSION = "v24.0"
+API_VERSION = "v26.0"
 BASIS = "https://graph.instagram.com"
 API = BASIS + "/" + API_VERSION
 PROFI_TYPEN = {"BUSINESS", "MEDIA_CREATOR", "CREATOR"}
@@ -182,8 +182,13 @@ def befehl_insights(a):
     return 0
 
 
+def absender(kommentar):
+    """Name des Kommentierenden. Die API liefert ihn mal als username, mal nur unter from, manchmal gar nicht."""
+    return kommentar.get("username") or (kommentar.get("from") or {}).get("username") or "unbekannt"
+
+
 def befehl_kommentare(a):
-    daten = hole("/{}/comments".format(a.id), fields="id,text,username,timestamp,like_count", limit=50)
+    daten = hole("/{}/comments".format(a.id), fields="id,text,username,from,timestamp,like_count", limit=50)
     liste = list(daten.get("data", []))
     weiter = (daten.get("paging") or {}).get("next")
     while weiter and len(liste) < a.max:
@@ -194,7 +199,7 @@ def befehl_kommentare(a):
         liste += daten.get("data", [])
         weiter = (daten.get("paging") or {}).get("next")
     liste = liste[:a.max]
-    z = ["{} @{}: {} (ID {})".format((k.get("timestamp") or "")[:10], k.get("username"), " ".join((k.get("text") or "").split()), k.get("id")) for k in liste]
+    z = ["{} @{}: {} (ID {})".format((k.get("timestamp") or "")[:10], absender(k), " ".join((k.get("text") or "").split()), k.get("id")) for k in liste]
     G.drucke(liste, "\n".join(z) or "Keine Kommentare.", a.json)
     return 0
 
