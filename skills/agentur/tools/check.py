@@ -127,7 +127,8 @@ def lesbar(s):
     if ig["ok"] and ig.get("alter_tage") is not None:
         ig_text += " (Schlüssel {} Tage alt{})".format(ig["alter_tage"], ", bald erneuern" if ig["alter_tage"] >= 50 else "")
     zeilen = [
-        "{} Agentur installiert ({}, Agenten {})".format(h(s["agentur_installiert"]["ok"]), s["agentur_installiert"]["weg"], s["agentur_installiert"]["agenten"]),
+        "{} Agentur installiert ({}, {} Agenten)".format(h(s["agentur_installiert"]["ok"]), s["agentur_installiert"]["weg"].capitalize(),
+                                                          s["agentur_installiert"]["agenten"].replace("/", " von ")),
         "{} Python {}".format(h(s["python"]["ok"]), s["python"]["version"]),
         "{} Scrapling".format(h(s["scrapling"]["ok"])),
         "{} Apify".format(h(s["apify"]["ok"])),
