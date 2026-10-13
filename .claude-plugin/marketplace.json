@@ -1,0 +1,14 @@
+{
+  "name": "social-agentur",
+  "description": "Deine Claude-Social-Media-Agentur mit sieben Agenten: Profil, Trend, Content, Community, Follower-Test, Viral und Analyse.",
+  "owner": {
+    "name": "Sebastian Kauffmann"
+  },
+  "plugins": [
+    {
+      "name": "social-agentur",
+      "source": "./",
+      "description": "Deine Claude-Social-Media-Agentur mit sieben Agenten."
+    }
+  ]
+}

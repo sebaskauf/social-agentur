@@ -1,0 +1,10 @@
+{
+  "name": "social-agentur",
+  "version": "1.0.0",
+  "description": "Sieben Claude-Agenten übernehmen deinen Social-Media-Auftritt: Profil, Trends, Content, Community, 100-Follower-Test, Viral-Verbesserung und Wochenanalyse.",
+  "author": { "name": "Sebastian Kauffmann" },
+  "homepage": "https://github.com/sebaskauf/social-agentur",
+  "repository": "https://github.com/sebaskauf/social-agentur",
+  "license": "MIT",
+  "keywords": ["social-media", "instagram", "content", "agenten", "deutsch"]
+}

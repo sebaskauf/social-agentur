@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+meine-agentur/
+*_token
+*_token_datum
