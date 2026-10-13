@@ -87,13 +87,29 @@ def schaetzung(accounts, max_ergebnisse):
     return round(preis_start + len(accounts) * max_ergebnisse * preis_reel, 4), preis_reel, preis_start, quelle
 
 
-def auswerten(items, accounts):
+def account_von(item):
+    name = item.get("ownerUsername")
+    if not name and item.get("inputUrl"):
+        name = normalisiere(item["inputUrl"])
+    return (name or "").lower()
+
+
+def auswerten(items, accounts, seit=None):
+    """Median und Ausreißer pro Account. Fehler-Einträge und Reels vor `seit` (z. B. alte angepinnte) zählen nicht."""
     pro = {a.lower(): [] for a in accounts}
+    fehler, zu_alt = {}, {}
     for it in items:
-        name = (it.get("ownerUsername") or "").lower()
+        name = account_von(it)
+        if it.get("error"):
+            fehler[name] = it.get("errorDescription") or it.get("error")
+            continue
+        datum = (it.get("timestamp") or "")[:10]
+        if seit and datum and datum < seit:
+            zu_alt[name] = zu_alt.get(name, 0) + 1
+            continue
         aufrufe = it.get("videoPlayCount") or it.get("videoViewCount") or 0
         pro.setdefault(name, []).append({
-            "datum": (it.get("timestamp") or "")[:10], "aufrufe": aufrufe,
+            "datum": datum, "aufrufe": aufrufe,
             "caption": " ".join((it.get("caption") or "").split())[:90], "link": it.get("url"),
             "likes": it.get("likesCount"), "kommentare": it.get("commentsCount"),
         })
@@ -102,7 +118,8 @@ def auswerten(items, accounts):
         werte = [r["aufrufe"] for r in reels if isinstance(r["aufrufe"], (int, float))]
         median = statistics.median(werte) if werte else 0
         ausreisser = sorted([r for r in reels if median > 0 and r["aufrufe"] >= 3 * median], key=lambda r: -r["aufrufe"])
-        ergebnis[name] = {"reels": len(reels), "median_aufrufe": median, "ausreisser": ausreisser}
+        ergebnis[name] = {"reels": len(reels), "median_aufrufe": median, "ausreisser": ausreisser,
+                          "aelter_als_zeitraum": zu_alt.get(name, 0), "fehler": fehler.get(name)}
     return ergebnis
 
 
@@ -141,16 +158,28 @@ def befehl_reels(a):
                 G.fehler_ende("Der Apify-Lauf dauert länger als 15 Minuten. Lauf-ID {} in der Apify Console prüfen.".format(lauf_id))
             time.sleep(WARTE_SEKUNDEN)
         items = anfrage("GET", "/datasets/{}/items?clean=true&format=json".format(dataset), timeout=120)
+        time.sleep(3)  # Apify bucht Kosten kurz nach dem Lauf nach, sonst ist der Wert zu niedrig
+        status = anfrage("GET", "/actor-runs/" + lauf_id)["data"]
     except G.ApiFehler as e:
         G.fehler_ende("Apify-Lauf fehlgeschlagen: {}".format(e))
-    auswertung = auswerten(items if isinstance(items, list) else [], accounts)
+    items = items if isinstance(items, list) else []
+    auswertung = auswerten(items, accounts, seit)
     ergebnis = dict(plan, gestartet=True, lauf_id=lauf_id, status=status.get("status"),
-                    tatsaechliche_kosten_usd=status.get("usageTotalUsd"), reels_geladen=len(items), accounts_auswertung=auswertung)
+                    tatsaechliche_kosten_usd=status.get("usageTotalUsd"), reels_geladen=sum(w["reels"] for w in auswertung.values()),
+                    accounts_auswertung=auswertung)
     if a.ausgabe:
         Path(a.ausgabe).write_text(json.dumps(ergebnis, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    z = ["Apify-Lauf {}: {} Reels geladen, Kosten {} $.".format(status.get("status"), len(items), status.get("usageTotalUsd"))]
+    kosten = status.get("usageTotalUsd")
+    z = ["Apify-Lauf {}: {} Reels im Zeitraum, Kosten {} $ (laut Apify, Stand direkt nach dem Lauf).".format(
+        status.get("status"), ergebnis["reels_geladen"], round(kosten, 4) if isinstance(kosten, (int, float)) else kosten)]
     for name, w in auswertung.items():
-        z.append("\n@{}: {} Reels, Median {} Aufrufe".format(name, w["reels"], w["median_aufrufe"]))
+        if w["fehler"]:
+            z.append("\n@{}: keine Daten (Apify meldet: {}). Account privat, falsch geschrieben oder von Instagram gerade nicht abrufbar.".format(name, w["fehler"]))
+            continue
+        alt = " ({} ältere Reels, z. B. angepinnte, nicht gezählt)".format(w["aelter_als_zeitraum"]) if w["aelter_als_zeitraum"] else ""
+        z.append("\n@{}: {} Reels, Median {} Aufrufe{}".format(name, w["reels"], w["median_aufrufe"], alt))
+        if 0 < w["reels"] < 5:
+            z.append("  Hinweis: Unter 5 Reels ist der Median wenig aussagekräftig.")
         for r in w["ausreisser"][:5]:
             z.append("  Ausreißer {} Aufrufe ({}): {} {}".format(r["aufrufe"], r["datum"], r["caption"], r["link"] or ""))
         if not w["ausreisser"]:

@@ -96,5 +96,22 @@ class TestApify(unittest.TestCase):
             self.assertNotIn("anderes kopiert", out + err)
 
 
+    def test_fehler_eintrag_und_alte_reels(self):
+        items = [
+            {"url": "https://www.instagram.com/b.konto", "inputUrl": "https://www.instagram.com/b.konto", "error": "no_items",
+             "errorDescription": "Empty or private data for provided input"},
+            {"ownerUsername": "a", "timestamp": "2024-01-19T15:41:03.000Z", "videoPlayCount": 8000000},  # alt, angepinnt
+        ] + [{"ownerUsername": "a", "timestamp": "2026-09-2{}T10:00:00.000Z".format(i), "videoPlayCount": v}
+             for i, v in enumerate([1000, 1100, 900, 1000, 5000])]
+        e = apify.auswerten(items, ["a", "b.konto"], "2026-09-13")
+        self.assertEqual(e["b.konto"]["reels"], 0)
+        self.assertIn("Empty or private", e["b.konto"]["fehler"])
+        self.assertEqual(e["a"]["reels"], 5)
+        self.assertEqual(e["a"]["aelter_als_zeitraum"], 1)
+        self.assertEqual(e["a"]["median_aufrufe"], 1000)
+        self.assertEqual([r["aufrufe"] for r in e["a"]["ausreisser"]], [5000])
+        self.assertNotIn("", e)
+
+
 if __name__ == "__main__":
     unittest.main()
